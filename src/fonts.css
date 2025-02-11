@@ -1,0 +1,20 @@
+@font-face {
+    font-family: 'Super Funky';
+    src: url('/fonts/SuperFunky-lgmWw.ttf') format('truetype');
+    font-weight: normal;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: 'Raster Forge';
+    src: url('/fonts/RasterForgeRegular-JpBgm.ttf') format('truetype');
+    font-weight: normal;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: 'Bitewise';
+    src: url('/fonts/Bitwise-m19x.ttf') format('truetype');
+    font-weight: normal;
+    font-style: normal;
+}
