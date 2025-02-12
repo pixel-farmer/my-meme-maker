@@ -1,58 +1,32 @@
-import { OpenAIApi, Configuration } from 'openai';
+import { Configuration, OpenAIApi } from 'openai';
 
-export const config = {
-  runtime: 'edge'
-};
+const configuration = new Configuration({
+  apiKey: process.env.OPENAI_API_KEY,
+});
 
-export default async function handler(req) {
+const openai = new OpenAIApi(configuration);
+
+export default async function handler(req, res) {
   if (req.method !== 'POST') {
-    return new Response(
-      JSON.stringify({ error: 'Method not allowed' }), 
-      { 
-        status: 405,
-        headers: { 'Content-Type': 'application/json' }
-      }
-    );
+    return res.status(405).json({ error: 'Method not allowed' });
   }
 
   try {
-    const configuration = new Configuration({
-      apiKey: process.env.OPENAI_API_KEY
-    });
-
-    const openai = new OpenAIApi(configuration);
-
     const response = await openai.createCompletion({
       model: "text-davinci-003",
-      prompt: "Generate a short, funny meme caption.",
+      prompt: "Generate a short, funny meme caption under 10 words.",
       max_tokens: 20,
       temperature: 0.7,
     });
 
-    return new Response(
-      JSON.stringify({ caption: response.data.choices[0].text.trim() }),
-      {
-        status: 200,
-        headers: {
-          'Content-Type': 'application/json',
-          'Access-Control-Allow-Origin': '*',
-        }
-      }
-    );
+    const caption = response.data.choices[0].text.trim();
+    return res.status(200).json({ caption });
+
   } catch (error) {
-    return new Response(
-      JSON.stringify({ 
-        error: 'Failed to generate caption',
-        details: error.message,
-        stack: error.stack
-      }),
-      {
-        status: 500,
-        headers: {
-          'Content-Type': 'application/json',
-          'Access-Control-Allow-Origin': '*',
-        }
-      }
-    );
+    console.error('Error details:', error);
+    return res.status(500).json({
+      error: 'Failed to generate caption',
+      message: error.message
+    });
   }
 } 
