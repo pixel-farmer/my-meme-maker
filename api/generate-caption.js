@@ -2,7 +2,7 @@ import OpenAI from 'openai';
 
 export default async function handler(req, res) {
   if (req.method !== 'POST') {
-    return res.status(405).json({ error: 'Method not allowed' });
+    return new Response('Method not allowed', { status: 405 });
   }
 
   try {
@@ -10,7 +10,8 @@ export default async function handler(req, res) {
       apiKey: process.env.OPENAI_API_KEY
     });
 
-    const { prompt } = req.body;
+    const body = await req.json();
+    const { prompt } = body;
 
     const completion = await openai.chat.completions.create({
       model: "gpt-3.5-turbo",
@@ -28,10 +29,19 @@ export default async function handler(req, res) {
       temperature: 0.7,
     });
 
-    const caption = completion.choices[0].message.content;
-    res.status(200).json({ caption });
+    return new Response(JSON.stringify({ caption: completion.choices[0].message.content }), {
+      status: 200,
+      headers: {
+        'Content-Type': 'application/json'
+      }
+    });
   } catch (error) {
     console.error('Error:', error);
-    res.status(500).json({ error: 'Failed to generate caption' });
+    return new Response(JSON.stringify({ error: 'Failed to generate caption' }), {
+      status: 500,
+      headers: {
+        'Content-Type': 'application/json'
+      }
+    });
   }
 } 
