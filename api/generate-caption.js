@@ -1,60 +1,31 @@
-import OpenAI from 'openai';
+import { Configuration, OpenAIApi } from 'openai';
 
-export const config = {
-  runtime: 'edge',
-};
-
-export default async function handler(req) {
+export default async function handler(req, res) {
   if (req.method !== 'POST') {
-    return new Response('Method not allowed', { status: 405 });
+    return res.status(405).json({ error: 'Method not allowed' });
   }
 
   try {
-    const openai = new OpenAI({
-      apiKey: process.env.OPENAI_API_KEY
+    const configuration = new Configuration({
+      apiKey: process.env.OPENAI_API_KEY,
     });
+    const openai = new OpenAIApi(configuration);
 
-    const completion = await openai.chat.completions.create({
-      model: "gpt-3.5-turbo",
-      messages: [
-        {
-          role: "system",
-          content: "You are a funny meme caption generator. Create short, witty captions that would work well on meme images. Keep responses under 10 words."
-        },
-        {
-          role: "user",
-          content: "Generate a funny meme caption"
-        }
-      ],
+    const completion = await openai.createCompletion({
+      model: "text-davinci-003",
+      prompt: "Generate a short, funny meme caption.",
       max_tokens: 30,
       temperature: 0.7,
     });
 
-    return new Response(
-      JSON.stringify({ 
-        caption: completion.choices[0].message.content.trim() 
-      }),
-      {
-        status: 200,
-        headers: {
-          'Content-Type': 'application/json',
-          'Cache-Control': 'no-store',
-        },
-      }
-    );
+    return res.status(200).json({ 
+      caption: completion.data.choices[0].text.trim() 
+    });
   } catch (error) {
     console.error('OpenAI API Error:', error);
-    return new Response(
-      JSON.stringify({ 
-        error: 'Failed to generate caption. Please try again.' 
-      }),
-      {
-        status: 500,
-        headers: {
-          'Content-Type': 'application/json',
-          'Cache-Control': 'no-store',
-        },
-      }
-    );
+    return res.status(500).json({ 
+      error: 'Failed to generate caption',
+      details: error.message 
+    });
   }
 } 
