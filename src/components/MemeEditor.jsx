@@ -21,60 +21,96 @@ function MemeEditor() {
       width: 600,
       height: 600,
     });
-    
+  
     canvas.on('selection:created', (e) => {
       console.log('Selected object type:', e.selected[0].type);
       setActiveObject(e.selected[0]);
-      
+  
       // Bring all text objects to front
-      canvas.getObjects().forEach(obj => {
+      canvas.getObjects().forEach((obj) => {
         if (obj.type === 'text') {
           obj.bringToFront();
         }
       });
       canvas.renderAll();
     });
-    
+  
     canvas.on('selection:cleared', () => {
       console.log('Selection cleared');
       setActiveObject(null);
     });
-
+  
     // Also bring text to front after any object modification
     canvas.on('object:modified', () => {
-      canvas.getObjects().forEach(obj => {
+      canvas.getObjects().forEach((obj) => {
         if (obj.type === 'text') {
           obj.bringToFront();
         }
       });
       canvas.renderAll();
     });
-    
+  
     setCanvas(canvas);
-
+  
+    const updateCanvasSize = () => {
+      const containerWidth = canvasRef.current.parentElement.offsetWidth; // Get the container's width
+      canvas.setWidth(containerWidth);
+      canvas.setHeight(containerWidth); // Keep the canvas square
+      canvas.renderAll();
+    };
+  
+    // Adjust canvas size initially and on resize
+    updateCanvasSize();
+    window.addEventListener('resize', updateCanvasSize);
+  
     return () => {
       canvas.dispose();
+      window.removeEventListener('resize', updateCanvasSize); // Clean up resize listener here
     };
   }, []);
+  
 
   const handleImageUpload = (file) => {
+    const updateCanvasSize = () => {
+      const containerWidth = canvasRef.current.parentElement.offsetWidth; // Get the container's width
+      canvas.setWidth(containerWidth);
+      canvas.setHeight(containerWidth); // Keep the canvas square
+      canvas.renderAll();
+    };
+  
+    // Adjust the canvas size initially and on window resize
+    updateCanvasSize();
+    window.addEventListener('resize', updateCanvasSize);
+  
     if (typeof file === 'string') {
       // Handle template URL
-      fabric.Image.fromURL(file, (img) => {
-        canvas.clear();
-        img.scaleToWidth(canvas.width);
-        img.crossOrigin = "anonymous";
-        canvas.centerObject(img);
-        canvas.add(img);
-        canvas.renderAll();
-      }, { crossOrigin: "anonymous" });
+      fabric.Image.fromURL(
+        file,
+        (img) => {
+          canvas.clear();
+          const scaleFactor = Math.min(
+            canvas.width / img.width,
+            canvas.height / img.height
+          );
+          img.scale(scaleFactor);
+          img.crossOrigin = 'anonymous';
+          canvas.centerObject(img);
+          canvas.add(img);
+          canvas.renderAll();
+        },
+        { crossOrigin: 'anonymous' }
+      );
     } else {
       // Handle file upload
       const reader = new FileReader();
       reader.onload = (event) => {
         fabric.Image.fromURL(event.target.result, (img) => {
           canvas.clear();
-          img.scaleToWidth(canvas.width);
+          const scaleFactor = Math.min(
+            canvas.width / img.width,
+            canvas.height / img.height
+          );
+          img.scale(scaleFactor);
           canvas.centerObject(img);
           canvas.add(img);
           canvas.renderAll();
