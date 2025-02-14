@@ -53,9 +53,11 @@ function MemeEditor() {
     setCanvas(canvas);
   
     const updateCanvasSize = () => {
-      const containerWidth = canvasRef.current.parentElement.offsetWidth;
-      const maxSize = 600; // Max canvas size for larger screens
-      const size = Math.min(containerWidth, maxSize); // Use the smaller value for responsiveness
+      //const containerWidth = canvasRef.current.parentElement.offsetWidth;
+      //const maxSize = 600; // Max canvas size for larger screens
+      //const size = Math.min(containerWidth, maxSize); // Use the smaller value for responsiveness
+      const container = canvasRef.current.parentElement;
+      const size = container.offsetWidth; // Use the container's width for both width and height
     
       canvas.setWidth(size);
       canvas.setHeight(size); // Keep the canvas square
@@ -188,12 +190,13 @@ function MemeEditor() {
   };
 
   return (
-    <div className="max-w-6xl mx-auto p-4 bg-gray-500">
+    <div className="max-w-6xl mx-auto p-0 bg-gray-500">
       <MemeTemplates onSelectTemplate={handleImageUpload} />
       
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         <div className="md:col-span-2 min-w-0">
-          <div className="relative w-full max-w-[600px] mx-auto border border-gray-300 mb-4 relative p-4 bg-black">
+            
+          <div className="relative w-full max-w-[600px] mx-auto border border-gray-300 mb-4 relative p-0 bg-black">
             <canvas id="meme-canvas" ref={canvasRef} />
             {activeObject && activeObject.type === 'text' && (
               <button
