@@ -228,22 +228,24 @@ function MemeEditor() {
         </div>
         {/* Text Controls */}
         <TextControls
-  onAddText={onAddText}
-  textSettings={textSettings}
-  onSettingsChange={handleSettingsChange}
-  canvas={canvasRef.current}
-  showSettings={showSettings}
-  toggleSettings={toggleSettings}
-/>
+        onAddText={onAddText}
+        textSettings={textSettings}
+        onSettingsChange={handleSettingsChange}
+        canvas={canvasRef.current}
+        showSettings={showSettings}
+        toggleSettings={toggleSettings}
+        />
+        <div className="flex justify-center p-4">
+        <button
+          onClick={handleDownloadMeme}
+          className="bg-[#cccccc] text-black px-4 py-2 gap-4 rounded hover:bg-[#bbbbbb]"
+        >
+          Download Meme
+        </button>
+        </div>
       </div>
     </div>
 
-      <button
-        onClick={handleDownloadMeme}
-        className="bg-[#cccccc] text-black px-4 py-2 rounded hover:bg-[#bbbbbb]"
-      >
-        Download Meme
-      </button>
     </div>
   );
 }
